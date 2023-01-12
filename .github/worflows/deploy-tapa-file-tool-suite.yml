@@ -1,4 +1,4 @@
-﻿name: "Deploy Tapa File Tool Suite"
+name: "Deploy Tapa File Tool Suite"
 
 on:
   push:
@@ -22,4 +22,4 @@ jobs:
 
       - run: dotnet build ${{ env.PROJECT_PATH }} -c Release --no-restore
 
-      - run: dotnet publish ${{ env.PROJECT_PATH }} -c Release --self-contained -p:PublishSingleFile=true
+      - run: dotnet publish ${{ env.PROJECT_PATH }} -c Release --self-contained -p:PublishSingleFile=true --no-build
