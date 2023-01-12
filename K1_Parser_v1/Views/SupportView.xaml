@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="K1_Parser_v1.Views.SupportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:K1_Parser_v1.Views"
+             xmlns:components="clr-namespace:K1_Parser_v1.Components"
+             mc:Ignorable="d" 
+             Height="Auto" Width="Auto">
+    <Grid Width="Auto" Margin="0,0,0,40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="80"/>
+            <!--Heading-->
+            <RowDefinition Height="380"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Width="Auto">
+            <components:NavigationBar>
+            </components:NavigationBar>
+        </Grid>
+
+        <Grid Grid.Row="1" Width="715">
+            <TextBlock
+            FontSize="30"
+            FontWeight="SemiBold"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Text="Support"/>
+
+            <Separator
+            VerticalAlignment="Bottom"/>
+        </Grid>
+
+        <Grid Grid.Row="2" Width="715">
+            <StackPanel>
+                <TextBlock 
+                FontSize="20" 
+                FontWeight="SemiBold"
+                Text="To request troubleshooting services, please reach out either by email or phone &#x0a;using the following contact info:&#x0a;&#x0a;&#x0a;Contact Name - Josh Robbins&#x0a;Email - jlrobbins99@gmail.com&#x0a;Phone - 972-832-2941&#x0a;&#x0a;&#x0a;Expect responses within a 24 hour time period. Troubleshooting services are &#x0a;available Monday-Friday between 9am-5pm CST." 
+                Margin="0,40,0,40" HorizontalAlignment="Center" Width="715"/>
+            </StackPanel>
+
+            <Separator
+            VerticalAlignment="Bottom" MaxWidth="400"/>
+        </Grid>
+        <Frame x:Name="Main" />
+    </Grid>
+</UserControl>
