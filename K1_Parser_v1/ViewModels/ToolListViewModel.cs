@@ -17,7 +17,7 @@ namespace K1_Parser_v1.ViewModels
         {
             get 
             { 
-                return Path.Combine(_imagesDirectoryPath, "Images", "Tapa File - Icon - 400x400.png"); 
+                return Path.Combine(_imagesDirectoryPath, "Tapa File - Icon - 400x400.png"); 
             }
             set
             {
