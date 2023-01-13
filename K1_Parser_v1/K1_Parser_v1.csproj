@@ -35,7 +35,8 @@
   <ItemGroup>
     <SplashScreen Include="Images\Tapa_File_Splash_Screen.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </SplashScreen>
+	  <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+	</SplashScreen>
   </ItemGroup>
 
   <ItemGroup>
