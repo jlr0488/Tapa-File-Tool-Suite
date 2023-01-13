@@ -7,7 +7,7 @@ on:
 
 env:
   PROJECT_PATH: K1_Parser_v1/K1_Parser_v1.csproj
-  BINARIES_PATH: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish/*
+  BINARIES_PATH: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish
   ZIP_PATH: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish/K1_Parser.zip
 
 jobs:
