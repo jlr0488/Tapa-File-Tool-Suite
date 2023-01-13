@@ -7,6 +7,8 @@ on:
 
 env:
   PROJECT_PATH: K1_Parser_v1/K1_Parser_v1.csproj
+  BINARIES_PATH: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish/*
+  ZIP_PATH: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish/K1_Parser.zip
 
 jobs:
   deploy:
@@ -24,6 +26,12 @@ jobs:
 
       - run: dotnet publish ${{ env.PROJECT_PATH }} -c Release --self-contained -r win-x64 -p:PublishSingleFile=true --no-build
 
+      - name: Create Zip File
+        uses: papeloto/action-zip@v1
+        with:
+          files: ${{ env.BINARIES_PATH }}
+          dest: ${{ env.ZIP_PATH }}
+
       - uses: actions/create-release@v1
         id: create_release
         env:
@@ -35,5 +43,6 @@ jobs:
       - uses: csexton/release-asset-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          pattern: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish/*
+          #pattern: K1_Parser_v1/bin/Release/net6.0-windows/win-x64/publish/*
+          file: ${{ env.ZIP_PATH }}
           release-url: ${{ steps.create_release.outputs.upload_url }}

@@ -62,4 +62,8 @@
     </Page>
   </ItemGroup>
 
+  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release (powershell.exe -Command $null=mkdir '$(SolutionDir)PublishOutput'; Compress-Archive -CompressionLevel Optimal -Path '$(TargetDir)*.dll', '$(TargetDir)*.pdb', '$(TargetDir)*.config', '$(TargetDir)*.ico', '$(TargetDir)*.png', '$(TargetDir)*.exe -DestinationPath '$(SolutionDir)PublishOutput\$(ProjectName).zip' -Force)" />
+  </Target>-->
+
 </Project>
