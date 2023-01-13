@@ -12,6 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--<Compile Remove=".github\**" />
+    <EmbeddedResource Remove=".github\**" />
+    <None Remove=".github\**" />
+    <Page Remove=".github\**" />-->
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Images\Tapa_File_Splash_Screen.png" />
   </ItemGroup>
 
@@ -63,14 +70,6 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="bin\Debug\net6.0-windows\Images\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include=".github\workflows\deploy-tapa-file-tool-suite.yml" />
   </ItemGroup>
 
 </Project>
