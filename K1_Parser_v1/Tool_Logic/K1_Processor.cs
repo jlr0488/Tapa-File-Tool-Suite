@@ -101,8 +101,6 @@ namespace K1_Parser_v1.Tool_Logic
             int currentInvestor = 0;
             for (int pageNumber = 1; pageNumber <= reader.NumberOfPages;)
             {
-                //pageNameSuffix++;
-
                 // make sure that there is at least one more investor in the list before processing
                 if(K1_List.Count > currentInvestor + 1)
                 {
@@ -141,8 +139,6 @@ namespace K1_Parser_v1.Tool_Logic
                     // since we just processed the last investor, we should go ahead and break out of the for loop
                     break;
                 }
-
-              
             }
         }
 
@@ -164,7 +160,6 @@ namespace K1_Parser_v1.Tool_Logic
                     {
                         break;
                     }
-
                 }
 
                 document.Close();
