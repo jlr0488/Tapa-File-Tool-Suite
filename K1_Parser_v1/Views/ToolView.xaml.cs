@@ -42,10 +42,10 @@ namespace K1_Parser_v1.Views
             bool? response = openFileDialog.ShowDialog();
             if (response == true)
             {
-                //Get Selected Files
+                // Get Selected Files
                 string[] files = openFileDialog.FileNames;
 
-                //Iterate and add all selected files to upload
+                // Iterate and add all selected files to upload
                 for (int i = 0; i < files.Length; i++)
                 {
                     string filename = System.IO.Path.GetFileName(files[i]);
