@@ -28,10 +28,14 @@ namespace K1_Parser_v1.Tool_Logic
 
         public string CompanyName { get; set; }
 
+        public string Year { get; set; }
+
         public K1_Processor()
         {
             K1_List = new List<Investor_Info>();
         }
+
+        private bool isYearSet = false;
 
         public void LoadPDF(string filePath)
         {
@@ -88,6 +92,66 @@ namespace K1_Parser_v1.Tool_Logic
                             break;
                         }
                     }
+
+                    // get the date
+                    if (!isYearSet)
+                    {
+                        bool isFirstLine = true;
+
+                        foreach (string line in lines)
+                        {
+                            // we do not want to process the first line since we know that does not contain the correct date
+                            if (!isFirstLine)
+                            {
+                                string newLine = "";
+                                string subYear = "";
+
+                                // the line that we care about will always start with "Enclosed". We will first look for that.
+                                if (line.Contains("Enclosed"))
+                                {
+                                    // check for year prefixes that would match the 2020's, 2010's, or 2000's
+                                    if (line.Contains("202"))
+                                    {
+                                        subYear = "202";
+                                    }
+                                    else if (line.Contains("201"))
+                                    {
+                                        subYear = "201";
+                                    }
+                                    else if (line.Contains("200"))
+                                    {
+                                        subYear = "200";
+                                    }
+                                    else
+                                    {
+                                        // if none of the years exist, then we know something changed to the K1 format and we will throw an exception
+                                        throw new Exception("Could not find the correct tax year. K1 file formatting has changed.");
+                                    }
+
+                                    int pos = line.IndexOf(subYear);
+
+                                    if (pos >= 0)
+                                    {
+                                        // first get rid of all character BEFORE the year value
+                                        newLine = line.Remove(0, pos);
+                                        // then get rid of all characters AFTER the year value (starting at
+                                        // position 3 since thats where the year would end)
+                                        newLine = newLine.Remove(4, newLine.Length - 4);
+                                    }
+
+                                    Year = newLine;
+                                    isYearSet = true;
+
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                isFirstLine = false;
+                            }
+                        }
+                    }
+                   
                 }
                 catch (Exception ex)
                 {
@@ -95,6 +159,10 @@ namespace K1_Parser_v1.Tool_Logic
                     MessageBox.Show(ex.Message);
                 }
             }
+
+            // reset the isYearSet value to false so that it does not stay true when someone tries to process 
+            // another set of K1's within the same session
+            isYearSet = false;
 
             // create separate K-1 pdf documents for each investor 
             PdfReader reader = new PdfReader(filePath); // remove
@@ -106,12 +174,12 @@ namespace K1_Parser_v1.Tool_Logic
                 {
                     interval = K1_List[currentInvestor + 1].StartingPage - K1_List[currentInvestor].StartingPage;
 
-                    string newPdfFileName = System.IO.Path.Combine(OutputDirectory, CompanyName
+                    string newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
                     + "_K1_" + K1_List[currentInvestor].Name + ".pdf");
 
                     if (File.Exists(newPdfFileName))
                     {
-                        newPdfFileName = System.IO.Path.Combine(OutputDirectory, CompanyName
+                        newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
                         + "_K1_" + K1_List[currentInvestor].Name + " (2)" + ".pdf");
                     }
 
@@ -125,12 +193,12 @@ namespace K1_Parser_v1.Tool_Logic
                     // if there are no more investors, process the current investor until the end of the document
                     interval = reader.NumberOfPages - K1_List[currentInvestor].StartingPage + 1;
 
-                    string newPdfFileName = System.IO.Path.Combine(OutputDirectory, CompanyName
+                    string newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
                     + "_K1_" + K1_List[currentInvestor].Name + ".pdf");
 
                     if (File.Exists(newPdfFileName))
                     {
-                        newPdfFileName = System.IO.Path.Combine(OutputDirectory, CompanyName
+                        newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
                         + "_K1_" + K1_List[currentInvestor].Name + " (2)" + ".pdf");
                     }
 
