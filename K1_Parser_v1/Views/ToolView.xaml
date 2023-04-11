@@ -60,6 +60,7 @@
                         </Style>
                     </Button.Resources>
                 </Button>
+                <TextBlock Name="CurrentDirectory" Height="40" Margin="0, -15, 0, 15" Text="Current output directory set to: " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <!--<xctk:IntegerUpDown Name="myUpDownControl" Width="40" Height="40" AllowTextInput="True" Binding=""/>-->
                 </StackPanel>
 

@@ -1,10 +1,13 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
+using K1_Parser_v1.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace K1_Parser_v1.Tool_Logic
@@ -37,8 +40,13 @@ namespace K1_Parser_v1.Tool_Logic
 
         private bool isYearSet = false;
 
-        public void LoadPDF(string filePath)
+        public async void LoadPDF(string filePath)
         {
+            CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+            ProgressWindow progressWindow = new ProgressWindow();
+            progressWindow.Show();
+
             int interval = 0;
             int pageNameSuffix = 0;
 
@@ -65,10 +73,10 @@ namespace K1_Parser_v1.Tool_Logic
                             {
                                 var newLine = line.Replace("Income of ", "");
 
-                                int index = newLine.IndexOf(" LLC");
-                                string result = newLine.Substring(0, index);
+                                newLine = newLine.TrimEnd(newLine[newLine.Length - 1]);
+                                newLine = string.Join("", newLine.Split(System.IO.Path.GetInvalidFileNameChars()));
 
-                                CompanyName = result;
+                                CompanyName = newLine;
 
                                 break;
                             }
@@ -86,6 +94,8 @@ namespace K1_Parser_v1.Tool_Logic
                             {
                                 newLine = newLine.Replace(",", "");
                             }
+
+                            newLine = string.Join("", newLine.Split(System.IO.Path.GetInvalidFileNameChars()));
 
                             K1_List.Add(new Investor_Info() { Name = newLine, StartingPage = i }); ;
 
@@ -164,49 +174,102 @@ namespace K1_Parser_v1.Tool_Logic
             // another set of K1's within the same session
             isYearSet = false;
 
+            // Create a new Progress<T> object to report progress
+            IProgress<(string, double)> progress = new Progress<(string, double)>(value =>
+            {
+                progressWindow.SetProgress(value.Item1, value.Item2);
+            });
+
+            int totalFiles = K1_List.Count;
+            int filesProcessed = 0;
+
             // create separate K-1 pdf documents for each investor 
             PdfReader reader = new PdfReader(filePath); // remove
             int currentInvestor = 0;
-            for (int pageNumber = 1; pageNumber <= reader.NumberOfPages;)
+
+            try 
             {
-                // make sure that there is at least one more investor in the list before processing
-                if(K1_List.Count > currentInvestor + 1)
+                for (int pageNumber = 1; pageNumber <= reader.NumberOfPages;)
                 {
-                    interval = K1_List[currentInvestor + 1].StartingPage - K1_List[currentInvestor].StartingPage;
-
-                    string newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
-                    + "_K1_" + K1_List[currentInvestor].Name + ".pdf");
-
-                    if (File.Exists(newPdfFileName))
+                    // make sure that there is at least one more investor in the list before processing
+                    if (K1_List.Count > currentInvestor + 1)
                     {
-                        newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
-                        + "_K1_" + K1_List[currentInvestor].Name + " (2)" + ".pdf");
-                    }
+                        interval = K1_List[currentInvestor + 1].StartingPage - K1_List[currentInvestor].StartingPage;
 
-                    SplitAndSaveInterval(filePath, pageNumber, interval, newPdfFileName);
-                    // get the page number where the next investor documents begin
-                    currentInvestor++;
-                    pageNumber = K1_List[currentInvestor].StartingPage;
+                        string newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
+                        + "_K1_" + K1_List[currentInvestor].Name + ".pdf");
+
+                        if (File.Exists(newPdfFileName))
+                        {
+                            newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
+                            + "_K1_" + K1_List[currentInvestor].Name + " (2)" + ".pdf");
+                        }
+
+                        SplitAndSaveInterval(filePath, pageNumber, interval, newPdfFileName);
+
+                        filesProcessed++;
+
+                        // Run the long-running task asynchronously
+                        await Task.Run(() =>
+                        {
+                            progressWindow.SetProgress($"Processing file {filesProcessed} of {totalFiles}...", (double)filesProcessed / totalFiles);
+
+                            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                        }, _cancellationTokenSource.Token);
+
+                        // get the page number where the next investor documents begin
+                        currentInvestor++;
+                        pageNumber = K1_List[currentInvestor].StartingPage;
+                    }
+                    else
+                    {
+                        // if there are no more investors, process the current investor until the end of the document
+                        interval = reader.NumberOfPages - K1_List[currentInvestor].StartingPage + 1;
+
+                        string newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
+                        + "_K1_" + K1_List[currentInvestor].Name + ".pdf");
+
+                        if (File.Exists(newPdfFileName))
+                        {
+                            newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
+                            + "_K1_" + K1_List[currentInvestor].Name + " (2)" + ".pdf");
+                        }
+
+                        SplitAndSaveInterval(filePath, pageNumber, interval, newPdfFileName);
+
+                        filesProcessed++;
+
+
+                        // Run the long-running task asynchronously
+                        await Task.Run(() =>
+                        {
+                            progressWindow.SetProgress($"Processing file {filesProcessed} of {totalFiles}...", (double)filesProcessed / totalFiles);
+
+                            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                        }, _cancellationTokenSource.Token);
+
+                        // since we just processed the last investor, we should go ahead and break out of the for loop
+                        break;
+                    }
                 }
-                else
+
+                // Run the long-running task asynchronously
+                await Task.Run(() =>
                 {
-                    // if there are no more investors, process the current investor until the end of the document
-                    interval = reader.NumberOfPages - K1_List[currentInvestor].StartingPage + 1;
+                    MessageBox.Show("The following K1 files were successfully processed: " + filePath, "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
+                });
+            } 
+            catch (Exception ex)
+            {
+                // if any exception occurs, we will show the error and continue processing
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                _cancellationTokenSource.Cancel();
 
-                    string newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
-                    + "_K1_" + K1_List[currentInvestor].Name + ".pdf");
-
-                    if (File.Exists(newPdfFileName))
-                    {
-                        newPdfFileName = System.IO.Path.Combine(OutputDirectory, Year + "_" + CompanyName
-                        + "_K1_" + K1_List[currentInvestor].Name + " (2)" + ".pdf");
-                    }
-
-                    SplitAndSaveInterval(filePath, pageNumber, interval, newPdfFileName);
-
-                    // since we just processed the last investor, we should go ahead and break out of the for loop
-                    break;
-                }
+                // Close the progress window
+                progressWindow.Close();
             }
         }
 

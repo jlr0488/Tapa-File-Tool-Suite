@@ -26,10 +26,11 @@ namespace K1_Parser_v1.Views
             if (response == System.Windows.Forms.DialogResult.OK)
             {
                 _outputDirectory = openFileDialog.SelectedPath;
+                CurrentDirectory.Text = "Current output directory set to: " + _outputDirectory;
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             if (_outputDirectory == null)
             {
@@ -69,19 +70,16 @@ namespace K1_Parser_v1.Views
                             UploadProgress = 100
                         });
                     }
+                    else
+                    {
+                        MessageBox.Show($"Unable to process {filename} - Please upload a file that has a .pdf file extension", "Invalid File Type",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
                     // parse the file
                     parser.LoadPDF(filePath);
                 }
-
-                string outputMessage = "The following K1 files were successfully processed:";
-
-                foreach(var file in files)
-                {
-                    outputMessage = outputMessage + "\n\n" + file;
-                }
-
-                MessageBox.Show(outputMessage, "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -123,19 +121,16 @@ namespace K1_Parser_v1.Views
                             UploadProgress = 100
                         });
                     }
+                    else
+                    {
+                        MessageBox.Show($"Unable to process {filename} - Please upload a file that has a .pdf file extension", "Invalid File Type",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
                     // parse the file
                     parser.LoadPDF(filePath);
                 }
-
-                string outputMessage = "The following K1 files were successfully processed:\n\n";
-
-                foreach (var file in files)
-                {
-                    outputMessage = outputMessage + "\n\n" + file;
-                }
-
-                MessageBox.Show(outputMessage, "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }
